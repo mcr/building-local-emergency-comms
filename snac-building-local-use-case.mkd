@@ -1,7 +1,7 @@
 ---
-title: Operational Considerations for Manufacturer Authorized Signing Authority
-abbrev: MASA Considerations
-docname: draft-richardson-anima-masa-considerations-00
+title: Inter-Gateway Discovery and Communications in Building Automation Systems
+abbrev: building-gateway
+docname: draft-richardson-snac-building-use-case-00
 
 stand_alone: true
 ipr: trust200902
@@ -17,7 +17,6 @@ pi:    # can use array (if all yes) or hash here
 
 author:
 
-
 - ins: M. Richardson
   name: Michael Richardson
   org: Sandelman Software Works
@@ -25,36 +24,85 @@ author:
 
 normative:
   BCP14: RFC8174
-  I-D.ietf-anima-bootstrapping-keyinfra:
 
 informative:
-  RFC7030:
+  RFC6550:
+  RFC8163:
+  RFC7368:
+  diehard:
+    title: Die Hard
+    author:
+     - ins: J. McTiernan
+     - name: John McTiernan
+     - org: Twentieth Century Fox
+    date: 1988
 
 --- abstract
 
-This document describes a number of operational modes that a
-BRSKI Manufacturer Authorized Signing Authority (MASA) may take on.
-
-Each mode is defined, and then each mode is given a relevance
-within an over applicability of what kind of organization the
-MASA is deployed into.  This document does not change any
-protocol mechanisms.
+This document describes a use case where gateways need to discover each other in order to maintain building safety systems
 
 --- middle
 
 # Introduction
 
-How about that {{BCP14}}.
+XXX - Intra-Gateway or Inter-Gateway?
+
+This document describes a scenario where gateway to gateway discovery is needed in order to maintain a series of building safety systems.
+
+New Buildings are being built with digitally controlled automation, and existing buildings are being retrofitted with new automation systems.
+While some buildings can and do leverage legacy wiring systems such as BACnet, and able to deploy technology like {{RFC8163}} to turn existing twisted pair control systems into IPv6 networks, other buildings are using various combinations of 802.15.4, Powerline ethernet, etc.  as an alternative to explicit wiring.
+
+Whether wired or wireless passing of a signal through re-inforced concrete floors presents a challenge, particularly in the retrofit situation.
+
+## Building Network Topology
+
+The sheer height of many buildings means that even per-floor gateways may be more than 100m away from the control room.  The distance issue requires that fiber be used to connect the building, or that sub-control rooms be established at regular intervals.
+
+As an alternative to this resulting star topology, with many critical points, a daisy-chain topology can be established, where the gateways on adjacent floors (or areas) are directly connected.
+To provide redundancy an additional cable can connect alternating floors, ideally via a different conduit.
+A routing protocol such as {{RFC6550}} can be used, or a metro-ethernet topology can be used to connect the gateways.
+
+This deals with the Layer 1 and Layer 2 resiliency in face of destruction of the control room, or the conduits leading to the control room.
+But what about the resiliency at layer 4 and at the application layer?
+Regulations often say that when a smoke detector goes on in one area that some or all adjacent areas need also to signal for occupants to leave.
+Emergency doors and stairwells need to be unlocked, emergency lighting and communications systems activated.
+
+## Scope of problem
+
+Many industrial settings can assume a competent operator to plan and manage the network.
+On the other hand, the HOMENET problem description assumes that there is no such operator {{RFC7368}}.
+
+In the building case there is a hybrid situation.
+For most of the regular, boring operation of the building there is a central point of control, a
+human operator is reachable, and maintenance people or processes can be deployed.
+
+It is during an emergency that the problems arise.
+The central point of control and the humans involved may become unavailable due to network partition, or because there are other things occupying their attention {{diehard}}
+
+This document presents the problem of having (network) adjacent gateways being able discover each other and interoperate with each other's sensor network from a just powered on situation.
+
+A key point about the just powered-on situation is that it assumes that any mesh network (whether {{RFC6550}} or Metro-Ring) may not have formed yet, and may never form.
+
+A network forming with {{RFC6550}} would normally do address assignment from the PIOs contained in the DODAGs.
+For stability, resiliency, and ease of deployment, the Gateway devices would likely number their sensors using either a ULA locally generated, or via an IPv6 prefix allocated via DHCPv6-PD using an extremely long (essentially infinite) lifetime.
+
+The Gateways could advertise their prefixes into a {{RFC6550}} mesh using DAO messages.
+(On a network built using a metro-ring protocol, then the entire gateway network is a single L2 domain, and a single OSPF area could be created)
+
+{{RFC6550}} includes support for non-Grounded DODAGs (no DODAG root) which would permit adjacent nodes to communicate and form a DAG, it is unclear yet if that mechanism can be used.
+
 
 # Privacy Considerations
 
-YYY
+To be considered.
 
 # Security Considerations
 
-ZZZ
+Something about building networks and physical security.
 
 # IANA Considerations
+
+None.
 
 # Acknowledgements
 

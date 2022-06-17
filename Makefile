@@ -1,4 +1,4 @@
-DRAFT:=draft
+DRAFT:=snac-building-local-use-case
 VERSION:=$(shell ./getver ${DRAFT}.mkd )
 EXAMPLES=
 
