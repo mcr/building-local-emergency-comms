@@ -1,0 +1,280 @@
+
+
+
+
+anima Working Group                                        M. Richardson
+Internet-Draft                                  Sandelman Software Works
+Intended status: Standards Track                            17 June 2022
+Expires: 19 December 2022
+
+
+   Inter-Gateway Discovery and Communications in Building Automation
+                                Systems
+               draft-richardson-snac-building-use-case-00
+
+Abstract
+
+   This document describes a use case where gateways need to discover
+   each other in order to maintain building safety systems
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 19 December 2022.
+
+Copyright Notice
+
+   Copyright (c) 2022 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+
+
+
+
+
+Richardson              Expires 19 December 2022                [Page 1]
+
+Internet-Draft              building-gateway                   June 2022
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+     1.1.  Building Network Topology . . . . . . . . . . . . . . . .   2
+     1.2.  Scope of problem  . . . . . . . . . . . . . . . . . . . .   3
+   2.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .   4
+   3.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
+   4.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
+   5.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
+   6.  Changelog . . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   7.  References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     7.1.  Normative References  . . . . . . . . . . . . . . . . . .   4
+     7.2.  Informative References  . . . . . . . . . . . . . . . . .   4
+   Author's Address  . . . . . . . . . . . . . . . . . . . . . . . .   5
+
+1.  Introduction
+
+   XXX - Intra-Gateway or Inter-Gateway?
+
+   This document describes a scenario where gateway to gateway discovery
+   is needed in order to maintain a series of building safety systems.
+
+   New Buildings are being built with digitally controlled automation,
+   and existing buildings are being retrofitted with new automation
+   systems.  While some buildings can and do leverage legacy wiring
+   systems such as BACnet, and able to deploy technology like [RFC8163]
+   to turn existing twisted pair control systems into IPv6 networks,
+   other buildings are using various combinations of 802.15.4, Powerline
+   ethernet, etc.  as an alternative to explicit wiring.
+
+   Whether wired or wireless passing of a signal through re-inforced
+   concrete floors presents a challenge, particularly in the retrofit
+   situation.
+
+1.1.  Building Network Topology
+
+   The sheer height of many buildings means that even per-floor gateways
+   may be more than 100m away from the control room.  The distance issue
+   requires that fiber be used to connect the building, or that sub-
+   control rooms be established at regular intervals.
+
+   As an alternative to this resulting star topology, with many critical
+   points, a daisy-chain topology can be established, where the gateways
+   on adjacent floors (or areas) are directly connected.  To provide
+   redundancy an additional cable can connect alternating floors,
+   ideally via a different conduit.  A routing protocol such as
+   [RFC6550] can be used, or a metro-ethernet topology can be used to
+   connect the gateways.
+
+
+
+Richardson              Expires 19 December 2022                [Page 2]
+
+Internet-Draft              building-gateway                   June 2022
+
+
+   This deals with the Layer 1 and Layer 2 resiliency in face of
+   destruction of the control room, or the conduits leading to the
+   control room.  But what about the resiliency at layer 4 and at the
+   application layer?  Regulations often say that when a smoke detector
+   goes on in one area that some or all adjacent areas need also to
+   signal for occupants to leave.  Emergency doors and stairwells need
+   to be unlocked, emergency lighting and communications systems
+   activated.
+
+1.2.  Scope of problem
+
+   Many industrial settings can assume a competent operator to plan and
+   manage the network.  On the other hand, the HOMENET problem
+   description assumes that there is no such operator [RFC7368].
+
+   In the building case there is a hybrid situation.  For most of the
+   regular, boring operation of the building there is a central point of
+   control, a human operator is reachable, and maintenance people or
+   processes can be deployed.
+
+   It is during an emergency that the problems arise.  The central point
+   of control and the humans involved may become unavailable due to
+   network partition, or because there are other things occupying their
+   attention [diehard]
+
+   This document presents the problem of having (network) adjacent
+   gateways being able discover each other and interoperate with each
+   other's sensor network from a just powered on situation.
+
+   A key point about the just powered-on situation is that it assumes
+   that any mesh network (whether [RFC6550] or Metro-Ring) may not have
+   formed yet, and may never form.
+
+   A network forming with [RFC6550] would normally do address assignment
+   from the PIOs contained in the DODAGs.  For stability, resiliency,
+   and ease of deployment, the Gateway devices would likely number their
+   sensors using either a ULA locally generated, or via an IPv6 prefix
+   allocated via DHCPv6-PD using an extremely long (essentially
+   infinite) lifetime.
+
+   The Gateways could advertise their prefixes into a [RFC6550] mesh
+   using DAO messages.  (On a network built using a metro-ring protocol,
+   then the entire gateway network is a single L2 domain, and a single
+   OSPF area could be created)
+
+   [RFC6550] includes support for non-Grounded DODAGs (no DODAG root)
+   which would permit adjacent nodes to communicate and form a DAG, it
+   is unclear yet if that mechanism can be used.
+
+
+
+Richardson              Expires 19 December 2022                [Page 3]
+
+Internet-Draft              building-gateway                   June 2022
+
+
+2.  Privacy Considerations
+
+   To be considered.
+
+3.  Security Considerations
+
+   Something about building networks and physical security.
+
+4.  IANA Considerations
+
+   None.
+
+5.  Acknowledgements
+
+   Hello.
+
+6.  Changelog
+
+7.  References
+
+7.1.  Normative References
+
+   [BCP14]    Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+7.2.  Informative References
+
+   [diehard]  McTiernan, J., McTiernan, J., and Twentieth Century Fox,
+              "Die Hard", 1988.
+
+   [RFC6550]  Winter, T., Ed., Thubert, P., Ed., Brandt, A., Hui, J.,
+              Kelsey, R., Levis, P., Pister, K., Struik, R., Vasseur,
+              JP., and R. Alexander, "RPL: IPv6 Routing Protocol for
+              Low-Power and Lossy Networks", RFC 6550,
+              DOI 10.17487/RFC6550, March 2012,
+              <https://www.rfc-editor.org/info/rfc6550>.
+
+   [RFC7368]  Chown, T., Ed., Arkko, J., Brandt, A., Troan, O., and J.
+              Weil, "IPv6 Home Networking Architecture Principles",
+              RFC 7368, DOI 10.17487/RFC7368, October 2014,
+              <https://www.rfc-editor.org/info/rfc7368>.
+
+   [RFC8163]  Lynn, K., Ed., Martocci, J., Neilson, C., and S.
+              Donaldson, "Transmission of IPv6 over Master-Slave/Token-
+              Passing (MS/TP) Networks", RFC 8163, DOI 10.17487/RFC8163,
+              May 2017, <https://www.rfc-editor.org/info/rfc8163>.
+
+
+
+
+Richardson              Expires 19 December 2022                [Page 4]
+
+Internet-Draft              building-gateway                   June 2022
+
+
+Author's Address
+
+   Michael Richardson
+   Sandelman Software Works
+   Email: mcr+ietf@sandelman.ca
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Richardson              Expires 19 December 2022                [Page 5]
