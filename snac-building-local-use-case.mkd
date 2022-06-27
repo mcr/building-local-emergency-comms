@@ -6,7 +6,6 @@ docname: draft-richardson-snac-building-use-case-00
 stand_alone: true
 ipr: trust200902
 area: Internet
-wg: anima Working Group
 kw: Internet-Draft
 cat: std
 
@@ -21,6 +20,10 @@ author:
   name: Michael Richardson
   org: Sandelman Software Works
   email: mcr+ietf@sandelman.ca
+- ins: W. Pan
+  name: Wei Pan
+  org: Huawei Technologies
+  email: william.panwei@huawei.com
 
 normative:
   BCP14: RFC8174
@@ -56,7 +59,8 @@ Whether wired or wireless passing of a signal through re-inforced concrete floor
 
 ## Building Network Topology
 
-The sheer height of many buildings means that even per-floor gateways may be more than 100m away from the control room.  The distance issue requires that fiber be used to connect the building, or that sub-control rooms be established at regular intervals.
+The sheer height of many buildings means that even per-floor gateways may be more than 100m away (copper ethernet distance) from the control room.
+The distance issue then requires that fiber be used to connect the building, or that sub-control rooms be established at regular intervals.
 
 As an alternative to this resulting star topology, with many critical points, a daisy-chain topology can be established, where the gateways on adjacent floors (or areas) are directly connected.
 To provide redundancy an additional cable can connect alternating floors, ideally via a different conduit.
@@ -64,7 +68,7 @@ A routing protocol such as {{RFC6550}} can be used, or a metro-ethernet topology
 
 This deals with the Layer 1 and Layer 2 resiliency in face of destruction of the control room, or the conduits leading to the control room.
 But what about the resiliency at layer 4 and at the application layer?
-Regulations often say that when a smoke detector goes on in one area that some or all adjacent areas need also to signal for occupants to leave.
+Regulations often say that when a smoke detector is tripped in one area that some or all adjacent areas need also to signal for occupants to leave.
 Emergency doors and stairwells need to be unlocked, emergency lighting and communications systems activated.
 
 ## Scope of problem
