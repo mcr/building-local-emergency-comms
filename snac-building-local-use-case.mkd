@@ -81,9 +81,12 @@ For most of the regular, boring operation of the building there is a central poi
 human operator is reachable, and maintenance people or processes can be deployed.
 
 It is during an emergency that the problems arise.
-The central point of control and the humans involved may become unavailable due to network partition, or because there are other things occupying their attention {{diehard}}
+The central point of control and the humans involved may become unavailable due to network partition, or because there are other things occupying their attention.
 
 This document presents the problem of having (network) adjacent gateways being able discover each other and interoperate with each other's sensor network from a just powered on situation.
+The criteria of just powered on does not imply a factory default situation.
+This criteria is to acknowledge that the power situation might be unstable: batteries and backup generators might not come on immediately, but there could be some short duration when power is unstable.
+As a result, any kind of configuration or network convergence that depends upon connectivity that would exist during regular operation can not be assumed.
 
 A key point about the just powered-on situation is that it assumes that any mesh network (whether {{RFC6550}} or Metro-Ring) may not have formed yet, and may never form.
 
@@ -93,7 +96,7 @@ For stability, resiliency, and ease of deployment, the Gateway devices would lik
 The Gateways could advertise their prefixes into a {{RFC6550}} mesh using DAO messages.
 (On a network built using a metro-ring protocol, then the entire gateway network is a single L2 domain, and a single OSPF area could be created)
 
-{{RFC6550}} includes support for non-Grounded DODAGs (no DODAG root) which would permit adjacent nodes to communicate and form a DAG, it is unclear yet if that mechanism can be used.
+Note that {{RFC6550}} includes support for non-Grounded DODAGs (no DODAG root) which would permit adjacent nodes to communicate and form a DAG, it is unclear yet if that mechanism can be used for this.
 
 
 # Privacy Considerations
